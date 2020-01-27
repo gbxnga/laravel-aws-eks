@@ -1,0 +1,31 @@
+version: '2'
+services:
+  app:
+    image: gbxnga/laravel-aws-eks 
+    container_name: laravel-aws-eks-app 
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    working_dir: /srv/app
+    volumes:
+      - ./:/srv/app
+    links:
+      - database 
+    environment: 
+      DB_HOST: database
+      DB_CONNECTION: mysql
+      DB_DATABASE: laravel_aws_eks
+      DB_USERNAME: app
+      DB_PASSWORD: password 
+    ports:
+      - 8080:80  
+
+  database:
+    image: mysql:5
+    environment:
+      MYSQL_DATABASE: laravel_aws_eks
+      MYSQL_USER: app
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+        - "33061:3306"
