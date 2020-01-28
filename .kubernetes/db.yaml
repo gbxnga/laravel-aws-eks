@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+        role: mysql-database
+    spec:
+      volumes: 
+      - name: persistent-mysql-storage
+        persistentVolumeClaim: 
+          claimName: mysql-pvc
+      containers:
+      - name: mysql
+        image: mysql:8.0 
+        ports:
+        - containerPort: 3306 
+        volumeMounts: 
+        - name: persistent-mysql-storage
+          mountPath: /var/lib/mysql
+        env:
+        - name: MYSQL_DATABASE
+          value: laravel_aws_eks
+        - name: MYSQL_USER
+          value: app
+        - name: MYSQL_PASSWORD
+          value: password 
+        - name: MYSQL_ROOT_PASSWORD
+          value: password 
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  annotations:
+    volume.beta.kubernetes.io/storage-class: standard
+spec: 
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
